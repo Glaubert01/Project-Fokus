@@ -4,13 +4,18 @@ const curtoBt = document.querySelector('.app__card-button--curto');
 const longoBt = document.querySelector('.app__card-button--longo');
 const banner = document.querySelector('.app__image');
 const titulo = document.querySelector('.app__title');
+const imagemPause = document.querySelector('.app__card-primary-butto-icon');
 const botoes = document.querySelectorAll('.app__card-button');
 const startPauseBt = document.querySelector('#start-pause');
 const musicaFocoInput = document.querySelector('#alternar-musica');
+const iniciarOuPausarBt = document.querySelector('#start-pause span');
+const tempoNaTela = document.querySelector('#timer');
 const musica = new Audio('/Sons/luna-rise-part-one.mp3');
+const audioPausa = new Audio('/Sons/pause.mp3');
+const audioPlay = new Audio('/Sons/play.wav');
 musica.loop = true;
 
-let tempoDecorridoEmSegundos = 5;
+let tempoDecorridoEmSegundos = 1500;
 let intervaloId = null;
 
 musicaFocoInput.addEventListener('change', () => {
@@ -22,22 +27,26 @@ musicaFocoInput.addEventListener('change', () => {
 })
    
 focoBt.addEventListener('click', () => {
+    tempoDecorridoEmSegundos = 1500
     alterarContexto('foco');
     focoBt.classList.add('active');
 })
 
 curtoBt.addEventListener('click', () => {
+    tempoDecorridoEmSegundos = 300
     alterarContexto('descanso-curto');
     curtoBt.classList.add('active');
 })
 
 longoBt.addEventListener('click', () => {
+    tempoDecorridoEmSegundos = 900
     alterarContexto('descanso-longo');
     longoBt.classList.add('active');
 })
 
 function alterarContexto (contexto) {
 
+    mostrarTempo(contexto);
     botoes.forEach(function (contexto){
         contexto.classList.remove('active');
     })
@@ -61,25 +70,41 @@ function alterarContexto (contexto) {
     }
 }
 
-function contagemRegressiva = () => {
+const contagemRegressiva = () => {
     if(tempoDecorridoEmSegundos <= 0){
+        alert('Tempo finalizado!');
         zerar();
-        alert('Tempo finalizado!')
         return;
     }
     tempoDecorridoEmSegundos -= 1;
+    mostrarTempo();
 }
 
 startPauseBt.addEventListener('click', iniciarOuPausar);    
 
 function iniciarOuPausar(){
     if(intervaloId){
+        imagemPause.setAttribute('src', `/Imagens/play_arrow.png`);
+        audioPausa.play();
         zerar();
+        return;
     }
+    imagemPause.setAttribute('src', `/Imagens/pause.png`);
+    audioPlay.play();
     intervaloId = setInterval(contagemRegressiva, 1000);
+    iniciarOuPausarBt.textContent = 'Pausar';
 }
 
 function zerar() {
     clearInterval(intervaloId);
+    iniciarOuPausarBt.textContent = 'Começar';
     intervaloId = null;
 }
+
+function mostrarTempo() {
+    const tempo = new Date(tempoDecorridoEmSegundos * 1000);
+    const tempoFormatado = tempo.toLocaleString('pt-br', {minute: '2-digit', second: '2-digit'});
+    tempoNaTela.innerHTML = `${tempoFormatado}`
+}
+
+mostrarTempo();
